@@ -1,12 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:login_with_firebase/components/my_drawer.dart';
 
 class HomePage extends StatelessWidget {
   
-  void logout(){
-    //implement logout functionality
-    FirebaseAuth.instance.signOut();
-  }
+
 
 
   const HomePage({super.key});
@@ -16,13 +13,11 @@ class HomePage extends StatelessWidget {
     return  Scaffold(
       appBar: AppBar(
         title: Text('Home'),
-        backgroundColor: Colors.deepPurple,
-        actions: [
-          IconButton(onPressed: logout,
-          icon: Icon(Icons.logout)
-          )
-        ],
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        elevation: 0,
+        
       ),
+      drawer: const MyDrawer(),
     );
   }
 }

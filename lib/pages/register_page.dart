@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_with_firebase/components/my_button.dart';
@@ -42,13 +43,19 @@ class _RegisterPageState extends State<RegisterPage> {
         displayMessageToUser("Passwords don't match!", context);
       }
 
+      //if passwords match
+      else{
       //try creating user
-
       try{
       //create the user
       UserCredential? userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailcontroller.text, password: passwordcontroller.text);
-      
       //pop loading circle
+
+      createUserDocument(userCredential);
+
+
+
+
       Navigator.pop(context);
       }
       on FirebaseAuthException catch(e){
@@ -58,8 +65,21 @@ class _RegisterPageState extends State<RegisterPage> {
         //display error message
         displayMessageToUser(e.code, context);
       }
+      }
+      
 
   }
+
+  //create a user document and collect them in firestore
+  Future<void> createUserDocument(UserCredential? userCredential) async{
+   if(userCredential!=null && userCredential.user!=null){
+    await FirebaseFirestore.instance.collection('Users').doc(userCredential.user!.email).set({
+      'email': userCredential.user!.email,
+      'username':usernamecontroller.text,
+    });
+  }
+  }
+
 
   @override
   Widget build(BuildContext context) {
