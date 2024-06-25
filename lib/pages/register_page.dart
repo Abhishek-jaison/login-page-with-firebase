@@ -1,19 +1,65 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_with_firebase/components/my_button.dart';
 import 'package:login_with_firebase/components/my_text_field.dart';
 
-class RegisterPage extends StatelessWidget {
-  final TextEditingController usernamecontroller = TextEditingController();
-  final TextEditingController emailcontroller = TextEditingController();
-  final TextEditingController passwordcontroller = TextEditingController();
-  final TextEditingController confirmPwcontroller = TextEditingController();
+import '../helper/helper_functions.dart';
 
+class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
 
   RegisterPage({super.key,required this.onTap});
 
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController usernamecontroller = TextEditingController();
+
+  final TextEditingController emailcontroller = TextEditingController();
+
+  final TextEditingController passwordcontroller = TextEditingController();
+
+  final TextEditingController confirmPwcontroller = TextEditingController();
+
   //Register method 
-  void Register() {}
+  void registerUser() async {
+      //show loading circle
+      showDialog(
+        context: context, 
+        builder: (context) => const Center(
+          child :CircularProgressIndicator(),
+        ));
+
+
+      //make shure passwords match
+      if(passwordcontroller.text != confirmPwcontroller.text){
+        //pop loading circle
+      Navigator.pop(context);
+
+        //show error message to user
+        displayMessageToUser("Passwords don't match!", context);
+      }
+
+      //try creating user
+
+      try{
+      //create the user
+      UserCredential? userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailcontroller.text, password: passwordcontroller.text);
+      
+      //pop loading circle
+      Navigator.pop(context);
+      }
+      on FirebaseAuthException catch(e){
+        //pop loading circle
+        Navigator.pop(context);
+
+        //display error message
+        displayMessageToUser(e.code, context);
+      }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +84,9 @@ class RegisterPage extends StatelessWidget {
                 SizedBox(height: 50,),
               
               //username
-              MyTextField(hintText: 'Email',
+              MyTextField(hintText: 'Username',
                obscureText: false,
-              controller: emailcontroller),
+              controller: usernamecontroller),
               const SizedBox(height: 10,),
 
               //email
@@ -77,7 +123,7 @@ class RegisterPage extends StatelessWidget {
 
               //sign in button
               MyButton(text: 'Register',
-               onTap: Register,
+               onTap: registerUser,
                ),
               SizedBox(height: 25,),
               
@@ -91,7 +137,7 @@ class RegisterPage extends StatelessWidget {
                   ),
                   ),
                   GestureDetector(
-                    onTap: onTap,
+                    onTap: widget.onTap,
                     child: const Text("Login Here",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
